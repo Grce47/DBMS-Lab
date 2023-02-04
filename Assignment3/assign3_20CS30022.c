@@ -40,11 +40,12 @@ void do_query_and_print_result(MYSQL *con, const char *query)
     }
 
     int num_fields = mysql_num_fields(result);
-
+    
     MYSQL_ROW row;
     MYSQL_FIELD *field;
     int cnt = 0, j, once = 1;
 
+    // Printf format : "%-{SPACE}s"
     const int SPACE_INT = atoi(SPACE);
     char printf_format[100];
     strcpy(printf_format, "%-");
@@ -157,7 +158,7 @@ void menu_start(MYSQL *con)
 int main()
 {
     const char *username = "root", *password = "20CS30022";
-    
+
     // CONNECTING WITH DATABASE
     MYSQL *con = mysql_init(NULL);
 
