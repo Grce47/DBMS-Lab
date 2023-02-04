@@ -49,8 +49,9 @@ void do_query_and_print_result(MYSQL *con, const char *query)
     char printf_format[100];
     strcpy(printf_format, "%-");
     strcat(printf_format, SPACE);
-    strcat(printf_format, "s|");
+    strcat(printf_format, "s");
 
+    printf("\n");
     while ((row = mysql_fetch_row(result)))
     {
         for (i = 0; i < num_fields; i++)
@@ -64,7 +65,7 @@ void do_query_and_print_result(MYSQL *con, const char *query)
                 }
 
                 printf("\n");
-                for (j = 0; j < ((SPACE_INT + 1) * cnt) && once; j++)
+                for (j = 0; j < (SPACE_INT * cnt) && once; j++)
                     printf("-");
                 once = 0;
                 printf("\n");
@@ -74,9 +75,9 @@ void do_query_and_print_result(MYSQL *con, const char *query)
         }
     }
     printf("\n");
-    for (j = 0; j < ((SPACE_INT + 1) * cnt); j++)
+    for (j = 0; j < (SPACE_INT * cnt); j++)
         printf("-");
-    printf("\n");
+    printf("\n\n");
     mysql_free_result(result);
 }
 
@@ -153,8 +154,10 @@ void menu_start(MYSQL *con)
     printf("Exiting!!\n");
 }
 
-int main(int argc, char **argv)
+int main()
 {
+    const char *username = "root", *password = "20CS30022";
+    
     // CONNECTING WITH DATABASE
     MYSQL *con = mysql_init(NULL);
 
@@ -165,7 +168,7 @@ int main(int argc, char **argv)
     }
 
     // LOGIN TO MYSQL SERVER
-    if (mysql_real_connect(con, "localhost", "root", "20CS30022", NULL, 0, NULL, 0) == NULL)
+    if (mysql_real_connect(con, "localhost", username, password, NULL, 0, NULL, 0) == NULL)
     {
         finish_with_error(con);
     }
