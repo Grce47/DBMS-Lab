@@ -9,10 +9,11 @@
 import mysql.connector
 from tabulate import tabulate
 
-def do_query_and_print(cursor,query:str) -> None:
+def do_query_and_print(cursor,query):
   '''
     Function to execute query and print result
   '''
+
   cursor.execute(query)
   myres = cursor.fetchall()
   print()
@@ -32,7 +33,6 @@ def main():
 
   # INITIALIAZING CURSOR
   mycursor = mydb.cursor()
-
   # MENU CODE
   tc = 1
   query = ""
