@@ -40,11 +40,11 @@ void do_query_and_print_result(MYSQL *con, const char *query)
     }
 
     int num_fields = mysql_num_fields(result);
-    
+
     MYSQL_ROW row;
     MYSQL_FIELD *field;
-    int cnt = 0, j, once = 1;
 
+    int cnt = 0, j, once = 1;
     // Printf format : "%-{SPACE}s"
     const int SPACE_INT = atoi(SPACE);
     char printf_format[100];
@@ -68,8 +68,9 @@ void do_query_and_print_result(MYSQL *con, const char *query)
                 printf("\n");
                 for (j = 0; j < (SPACE_INT * cnt) && once; j++)
                     printf("-");
+                if (once)
+                    printf("\n");
                 once = 0;
-                printf("\n");
             }
 
             printf(printf_format, row[i] ? row[i] : "NULL");
@@ -157,7 +158,7 @@ void menu_start(MYSQL *con)
 
 int main()
 {
-    const char *username = "root", *password = "20CS30022";
+    const char *username = "20CS30022", *password = "20CS30022", *host = "10.5.18.71";
 
     // CONNECTING WITH DATABASE
     MYSQL *con = mysql_init(NULL);
@@ -169,7 +170,7 @@ int main()
     }
 
     // LOGIN TO MYSQL SERVER
-    if (mysql_real_connect(con, "localhost", username, password, NULL, 0, NULL, 0) == NULL)
+    if (mysql_real_connect(con, host, username, password, NULL, 0, NULL, 0) == NULL)
     {
         finish_with_error(con);
     }

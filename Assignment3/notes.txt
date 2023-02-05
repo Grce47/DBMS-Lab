@@ -26,10 +26,3 @@ https://learn.microsoft.com/en-us/sql/odbc/reference/introduction-to-odbc?view=s
 https://www.postgresqltutorial.com/postgresql-python/connect/
 
 https://dev.mysql.com/doc/connector-python/en/
-
-
-/*
-*    Grace Sharma 20CS30022
-*    Compile With Command : gcc assign3_20CS30022.c -o a.out `mysql_config --cflags --libs`
-*    Run Program : ./a.out
-*/
