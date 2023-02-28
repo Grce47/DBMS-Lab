@@ -1,6 +1,9 @@
+import pymysql
 import os
 import environ
 from pathlib import Path
+
+pymysql.install_as_MySQLdb()
 
 env = environ.Env()
 environ.Env.read_env()
@@ -18,8 +21,7 @@ SECRET_KEY = 'django-insecure--1zm4r@qgn(w_cd)b$l6d59c!v5eo=bwdzp3e+xxe7@s9o$46z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['localhost', '*']
 
 # Application definition
 
@@ -36,8 +38,7 @@ INSTALLED_APPS = [
     'database_admin',
     'data_entry_operator',
     'front_desk_operator',
-
-
+    'user_profile'
 ]
 
 MIDDLEWARE = [
@@ -78,8 +79,12 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env('MYSQL_DATABASE'),
+        'USER': env('MYSQL_USER'),
+        'PASSWORD': env('MYSQL_PASSWORD'),
+        'HOST': env('MYSQL_HOST'),
+        'PORT': '3306',
     }
 }
 
