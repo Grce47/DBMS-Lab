@@ -2,7 +2,8 @@ import "./Login.css";
 import CSRFToken from "./CSRFToken";
 import axios from "axios";
 
-const server = "http://127.0.0.1:8000/";
+// const server = "http://10.147.178.240:8000/";
+const server = "http://127.0.0.1:8000/"
 
 function Login() {
 
@@ -38,7 +39,7 @@ function Login() {
             method: "POST",
             headers: {
                 "Content-type": "application/json; charset=UTF-8",
-                "X-CSRFToken": getCookie("csrftoken")
+                // "X-CSRFToken": getCookie("csrftoken")
             },
             body: JSON.stringify(data)
         }).then(response => response.json()).then(data => {
@@ -55,38 +56,31 @@ function Login() {
         });
     }
 
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
     function submit_login(e){
         e.preventDefault();
         
         var username = e.target.username.value;
-        var csrf = e.target.csrfmiddlewaretoken.value;
         var password = e.target.password.value;
         var designation = e.target.designation.value;
+        var csrf;
         var data = {
             "username": username,
             "password": password,
             "designation": designation
         }
+
+        var xhttp = new XMLHttpRequest();;
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+               // Typical action to be performed when the document is ready:
+               csrf = JSON.parse(this.response).token;
+            }
+        };
+        xhttp.withCredentials = true;
+        xhttp.open("GET", server.concat("csrf_cookie/"));
+        xhttp.send();
         console.log(data);
 
-        var csrftoken = getCookie('csrftoken');
-        console.log(csrftoken);
         var headers = new Headers();
         headers.append('X-CSRFToken', csrf);
         headers.append('Content-Type', 'application/json');
@@ -134,7 +128,7 @@ function Login() {
                     <h2>LOG IN</h2>
                     <form onSubmit={e => submit_login(e)}>
                         <div className="inputbox">
-                            <CSRFToken />
+                            {/* <CSRFToken /> */}
                             <input type="text" name="username" placeholder="  USERNAME" />
                             <input type="password" name="password" placeholder="  PASSWORD" />
                             <select name="designation">

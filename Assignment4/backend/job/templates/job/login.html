@@ -1,0 +1,29 @@
+{% extends "job/base.html" %} 
+{% block content %}
+<div>
+  <div class="container">
+    <div class="backbox">
+        <div class="loginMsg">
+            <div class="textcontent">
+                <p class="title">Don't have an account?</p>
+                <p>Sign up to save all your graph.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="frontbox">
+        <div class="login">
+            <h2>LOG IN</h2>
+            <form method="POST" id="login-form">
+                {% csrf_token %}
+                <div class="inputbox">
+                    <input type="text" name="username" placeholder="  USERNAME" />
+                    <input type="password" name="password" placeholder="  PASSWORD" />
+                </div>
+            <button type="submit">LOG IN</button>
+            </form>
+        </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

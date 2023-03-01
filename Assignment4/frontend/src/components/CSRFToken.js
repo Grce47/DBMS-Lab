@@ -3,7 +3,7 @@ import Cookies from 'js-cookie'
 
 const CSRFToken = () => {
 
-    const server = "http://127.0.0.1:8000/"
+    const server = "http://10.147.178.:8000/"
 
     const [csrftoken, setcsrftoken] = useState('');
 
@@ -23,17 +23,6 @@ const CSRFToken = () => {
     }
 
     useEffect(() => {
-        // const fetchData = async () => {
-        //     try {
-        //         await axios.get(server.concat("csrf_cookie/"),{
-        //             withCredentials: true
-        //         }).then(response => {
-        //             console.log(response.headers);
-        //         });
-        //     } catch (err) {
-
-        //     }
-        // };
 
         var xhttp = new XMLHttpRequest();;
         xhttp.onreadystatechange = function() {
