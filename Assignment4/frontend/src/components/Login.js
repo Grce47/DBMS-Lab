@@ -75,6 +75,7 @@ function Login() {
         e.preventDefault();
         
         var username = e.target.username.value;
+        var csrf = e.target.csrfmiddlewaretoken.value;
         var password = e.target.password.value;
         var designation = e.target.designation.value;
         var data = {
@@ -87,12 +88,12 @@ function Login() {
         var csrftoken = getCookie('csrftoken');
         console.log(csrftoken);
         var headers = new Headers();
-        headers.append('X-CSRFToken', csrftoken);
+        headers.append('X-CSRFToken', csrf);
         headers.append('Content-Type', 'application/json');
         fetch(server.concat("login/"), {
             method: "POST",
             headers: headers,
-            credentials: 'same-origin',
+            credentials: 'include',
             body: JSON.stringify(data)
         }).then(response => response.json()).then(data => {
             if(data.hasOwnProperty("success")){
@@ -104,7 +105,7 @@ function Login() {
                 document.getElementById("login-msg").style.color = "red";
             }
         }).catch(error => {
-            console.log(error.headers['Set-Cookie']);
+            console.log(error);
         });
     
     }

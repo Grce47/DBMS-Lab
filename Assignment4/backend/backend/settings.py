@@ -41,14 +41,8 @@ INSTALLED_APPS = [
     'user_profile'
 ]
 
-# CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWED_ORIGINS = [
-    "https://domain.com",
-    "https://api.domain.com",
-    "http://localhost:3000",
-    "http://127.0.0.1:9000",
-    "http://10.147.252.43:3000"
-]
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = [

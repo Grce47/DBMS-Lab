@@ -1,7 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-# @api_view(['GET'])
-# def getPatient(request):
-#     # patient = Patient.objects.filter()
-#     pass
+@api_view(['GET',])
+def getAllPatient(request):
+    return Response({"Chaljaa":"chaljaa"})

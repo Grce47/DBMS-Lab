@@ -6,18 +6,16 @@ from rest_framework.response import Response
 from .models import UserProfile
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils.decorators import method_decorator
+from django.middleware.csrf import get_token
 
 
-# @method_decorator(csrf_protect, name='dispatch')
+@method_decorator(csrf_protect, name='dispatch')
 class CheckAuthenticatedView(APIView):
-    # permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.AllowAny, )
 
     def get(self, request, format=None):
         user = self.request.user
         
-        resp = Response({"ok":"ok"})
-        resp.set_cookie('token','umang',samesite='Strict')
-        return resp
         try:
             isAuthenticated = user.is_authenticated
 
@@ -108,4 +106,4 @@ class GetCSRFToken(APIView):
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, format=None):
-        return Response({'success': 'CSRF cookie set'})
+        return Response({'success': 'CSRF cookie set','token' : get_token(request)})

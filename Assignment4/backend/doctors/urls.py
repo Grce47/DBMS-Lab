@@ -1,6 +1,7 @@
 from django.urls import path
-# from doctors.views import getPatient
+from .views import getAllPatient
+
 
 urlpatterns = [
-    # path('',getPatient),
+   path('', getAllPatient),
 ]
