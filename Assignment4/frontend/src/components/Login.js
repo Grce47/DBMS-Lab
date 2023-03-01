@@ -1,4 +1,8 @@
 import "./Login.css";
+import CSRFToken from "./CSRFToken";
+import axios from "axios";
+
+const server = "http://10.147.178.240:8000/";
 
 function Login() {
 
@@ -18,6 +22,99 @@ function Login() {
 
         document.getElementsByClassName("signup")[0].classList.toggle("hide");
         document.getElementsByClassName("login")[0].classList.toggle("hide");
+    }
+
+    function submit_signup(){
+        var username = document.getElementsByName("username")[1].value;
+        var password = document.getElementsByName("password")[1].value;
+        var designation = document.getElementsByName("designation")[1].value;
+        var data = {
+            "username": username,
+            "password": password,
+            "designation": designation
+        }
+        console.log(data);
+        fetch(server.concat("register/"), {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: JSON.stringify(data)
+        }).then(response => response.json()).then(data => {
+            if(data.hasOwnProperty("success")){
+                document.getElementById("signup-msg").innerHTML = "Sign up successful";
+                document.getElementById("signup-msg").style.color = "green";
+            }
+            else{
+                document.getElementById("signup-msg").innerHTML = data["error"];
+                document.getElementById("signup-msg").style.color = "red";
+            }
+        }).catch(error => {
+            console.log(error);
+        });
+    }
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function submit_login(){
+        var username = document.getElementsByName("username")[0].value;
+        var password = document.getElementsByName("password")[0].value;
+        var designation = document.getElementsByName("designation")[0].value;
+        var data = {
+            "username": username,
+            "password": password,
+            "designation": designation
+        }
+        console.log(data);
+
+        const fetch_data = async () => {
+            await axios.get(server.concat("csrf_cookie/"), {
+                withCredentials: true
+            }).then(response => {
+                console.log(response.headers.get("Set-Cookie"));
+            });
+        };
+
+        fetch_data().then(() => {
+            var csrftoken = getCookie('csrftoken');
+            console.log(csrftoken);
+            var headers = new Headers();
+            headers.append('X-CSRFToken', csrftoken);
+            headers.append('Content-Type', 'application/json');
+            fetch(server.concat("login/"), {
+                method: "POST",
+                headers: headers,
+                credentials: 'same-origin',
+                body: JSON.stringify(data)
+            }).then(response => response.json()).then(data => {
+                if(data.hasOwnProperty("success")){
+                    document.getElementById("login-msg").innerHTML = "login successful";
+                    document.getElementById("login-msg").style.color = "green";
+                }
+                else{
+                    document.getElementById("login-msg").innerHTML = data["error"];
+                    document.getElementById("login-msg").style.color = "red";
+                }
+            }).catch(error => {
+                console.log(error);
+            });
+        });
+    
     }
 
     return (
@@ -44,9 +141,10 @@ function Login() {
                     <h2>LOG IN</h2>
                     <form method="post" action="">
                         <div className="inputbox">
+                            <CSRFToken />
                             <input type="text" name="username" placeholder="  USERNAME" />
                             <input type="password" name="password" placeholder="  PASSWORD" />
-                            <select id="usertype" name="usertype">
+                            <select name="designation">
                                 <option > &nbsp;&nbsp;Designation</option>
                                 <option value="0">Doctor</option>
                                 <option value="1">Front Desk Operator</option>
@@ -55,25 +153,27 @@ function Login() {
                             </select>
                         </div>
                     </form>
-                    <button>LOG IN</button>
+                    <div id="login-msg"></div>
+                    <button onClick={submit_login}>LOG IN</button>
                 </div>
 
                 <div className="signup hide">
                     <h2>SIGN UP</h2>
-                    <form method="post" action="">
-                        <div className="inputbox">
-                            <input type="text" name="username" placeholder="  USERNAME" />
-                            <input type="password" name="password" placeholder="  PASSWORD" />
-                            <select id="usertype" name="usertype">
-                                <option > &nbsp;&nbsp;Designation</option>
-                                <option value="0">Doctor</option>
-                                <option value="1">Front Desk Operator</option>
-                                <option value="2">Data Entry Operator</option>
-                                <option value="3">Database Administrator</option>
-                            </select>
-                        </div>
-                    </form>
-                    <button>SIGN UP</button>
+                    <div className="inputbox">
+                        {/* <CSRFToken /> */}
+                        <input type="text" name="username" placeholder="  USERNAME" />
+                        <input type="password" name="password" placeholder="  PASSWORD" />
+                        <select name="designation">
+                            <option > &nbsp;&nbsp;Designation</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="front_desk_operator">Front Desk Operator</option>
+                            <option value="data_entry_operator">Data Entry Operator</option>
+                            <option value="database_admin">Database Administrator</option>
+                        </select>
+                        
+                    </div>
+                    <div id="signup-msg"></div>
+                    <button onClick={submit_signup}>SIGN UP</button>
                 </div>
             </div>
         </div>
