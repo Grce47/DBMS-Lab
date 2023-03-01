@@ -71,10 +71,12 @@ function Login() {
         return cookieValue;
     }
 
-    function submit_login(){
-        var username = document.getElementsByName("username")[0].value;
-        var password = document.getElementsByName("password")[0].value;
-        var designation = document.getElementsByName("designation")[0].value;
+    function submit_login(e){
+        e.preventDefault();
+        
+        var username = e.target.username.value;
+        var password = e.target.password.value;
+        var designation = e.target.designation.value;
         var data = {
             "username": username,
             "password": password,
@@ -82,37 +84,27 @@ function Login() {
         }
         console.log(data);
 
-        const fetch_data = async () => {
-            await axios.get(server.concat("csrf_cookie/"), {
-                withCredentials: true
-            }).then(response => {
-                console.log(response.headers.get("Set-Cookie"));
-            });
-        };
-
-        fetch_data().then(() => {
-            var csrftoken = getCookie('csrftoken');
-            console.log(csrftoken);
-            var headers = new Headers();
-            headers.append('X-CSRFToken', csrftoken);
-            headers.append('Content-Type', 'application/json');
-            fetch(server.concat("login/"), {
-                method: "POST",
-                headers: headers,
-                credentials: 'same-origin',
-                body: JSON.stringify(data)
-            }).then(response => response.json()).then(data => {
-                if(data.hasOwnProperty("success")){
-                    document.getElementById("login-msg").innerHTML = "login successful";
-                    document.getElementById("login-msg").style.color = "green";
-                }
-                else{
-                    document.getElementById("login-msg").innerHTML = data["error"];
-                    document.getElementById("login-msg").style.color = "red";
-                }
-            }).catch(error => {
-                console.log(error);
-            });
+        var csrftoken = getCookie('csrftoken');
+        console.log(csrftoken);
+        var headers = new Headers();
+        headers.append('X-CSRFToken', csrftoken);
+        headers.append('Content-Type', 'application/json');
+        fetch(server.concat("login/"), {
+            method: "POST",
+            headers: headers,
+            credentials: 'same-origin',
+            body: JSON.stringify(data)
+        }).then(response => response.json()).then(data => {
+            if(data.hasOwnProperty("success")){
+                document.getElementById("login-msg").innerHTML = "login successful";
+                document.getElementById("login-msg").style.color = "green";
+            }
+            else{
+                document.getElementById("login-msg").innerHTML = data["error"];
+                document.getElementById("login-msg").style.color = "red";
+            }
+        }).catch(error => {
+            console.log(error.headers['Set-Cookie']);
         });
     
     }
@@ -139,7 +131,7 @@ function Login() {
             <div className="frontbox">
                 <div className="login">
                     <h2>LOG IN</h2>
-                    <form method="post" action="">
+                    <form onSubmit={e => submit_login(e)}>
                         <div className="inputbox">
                             <CSRFToken />
                             <input type="text" name="username" placeholder="  USERNAME" />
@@ -152,9 +144,9 @@ function Login() {
                                 <option value="3">Database Administrator</option>
                             </select>
                         </div>
+                    <button type="submit">LOG IN</button>
                     </form>
                     <div id="login-msg"></div>
-                    <button onClick={submit_login}>LOG IN</button>
                 </div>
 
                 <div className="signup hide">
