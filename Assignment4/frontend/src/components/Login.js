@@ -2,7 +2,7 @@ import "./Login.css";
 import CSRFToken from "./CSRFToken";
 import axios from "axios";
 
-const server = "http://10.147.178.240:8000/";
+const server = "http://127.0.0.1:8000/";
 
 function Login() {
 

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import Cookies from 'js-cookie'
 
 const CSRFToken = () => {
 
-    const server = "http://10.147.178.240:8000/"
+    const server = "http://127.0.0.1:8000/"
 
     const [csrftoken, setcsrftoken] = useState('');
 
@@ -43,6 +43,7 @@ const CSRFToken = () => {
             credentials: "include"
         }).then(response => {
             console.log(response);
+            console.log(document.cookie);
         })
         setcsrftoken(getCookie('csrftoken'));
     }, []);

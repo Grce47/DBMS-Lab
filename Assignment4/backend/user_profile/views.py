@@ -4,20 +4,25 @@ from rest_framework import permissions
 from django.contrib import auth
 from rest_framework.response import Response
 from .models import UserProfile
-from .serializers import UserSerializer
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils.decorators import method_decorator
 
 
+# @method_decorator(csrf_protect, name='dispatch')
 class CheckAuthenticatedView(APIView):
+    # permission_classes = (permissions.AllowAny, )
+
     def get(self, request, format=None):
         user = self.request.user
-
+        
+        resp = Response({"ok":"ok"})
+        resp.set_cookie('token','umang',samesite='Strict')
+        return resp
         try:
             isAuthenticated = user.is_authenticated
 
             if isAuthenticated:
-                return Response({'isAuthenticated': 'success'})
+                return Response({'isAuthenticated': 'success', 'user': UserProfile.objects.filter(user=user).first().designation})
             else:
                 return Response({'isAuthenticated': 'error'})
         except:
@@ -87,7 +92,9 @@ class LoginView(APIView):
             return Response({'error': 'Something went wrong when logging in'})
 
 
+@method_decorator(csrf_protect, name='dispatch')
 class LogoutView(APIView):
+    permission_classes = (permissions.AllowAny, )
     def post(self, request, format=None):
         try:
             auth.logout(request)
