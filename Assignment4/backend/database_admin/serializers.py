@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from database_admin.models import Patient
+from .models import Patient
 
 
 class PatientSerializer(ModelSerializer):
