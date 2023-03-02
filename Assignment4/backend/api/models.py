@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Patient(models.Model):
@@ -21,50 +22,50 @@ class Room(models.Model):
 
 
 class Admit(models.Model):
-    patient_id = models.IntegerField()
-    room_number = models.IntegerField()
+    patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True)
+    room = models.ForeignKey(
+        Room, on_delete=models.SET_NULL, null=True, blank=True)
     entry_time = models.DateTimeField(auto_now_add=True)
-    exit_time = models.DateTimeField()
+    exit_time = models.DateTimeField(blank=True, null=True)
 
     def __str__(self) -> str:
-        return f"{str(self.patient_id)}-{str(self.room_number)}-{str(self.entry_time)}"
+        return f"{str(self.patient)}-{str(self.room)}-{str(self.entry_time)}"
 
 
 class Transaction(models.Model):
-    patient_id = models.IntegerField()
-    doctor_id = models.IntegerField()
+    patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True)
+    doctor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     prescription = models.CharField(max_length=50, default=None)
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return f"{str(self.patient_id)}-{str(self.created_time)}"
+        return f"{str(self.patient)}-{str(self.created_time)}"
 
 
 class Doctor_Appointment(models.Model):
-    doctor_id = models.IntegerField()
-    patient_id = models.IntegerField()
+    doctor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True)
     slot_time = models.DateTimeField()
 
     def __str__(self) -> str:
-        return f"{self.doctor_id}-{self.patient_id}-{str(self.slot_time)}"
+        return f"{str(self.doctor)}-{str(self.patient)}-{str(self.slot_time)}"
 
 
 class Test(models.Model):
-    transanction_id = models.IntegerField()
-    patient_id = models.IntegerField()
-    doctor_id = models.IntegerField()
+    transaction = models.ForeignKey(
+        Transaction, on_delete=models.SET_NULL, null=True)
     report_text = models.CharField(max_length=50, default=None)
     report_image = models.ImageField(upload_to='images/')
 
     def __str__(self) -> str:
-        return f"{self.transanction_id}-{self.patient_id}"
+        return f"{str(self.transaction)}-{str(self.report_text)[:5]}"
 
 
 class Test_Appointment(models.Model):
-    patient_id = models.IntegerField()
-    doctor_id = models.IntegerField()
-    test_type = models.CharField(max_length=50,default=None)
+    patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True)
+    doctor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    test_type = models.CharField(max_length=50, default=None)
     slot_time = models.DateTimeField()
 
     def __str__(self) -> str:
-        return f"{self.patient_id}-{self.doctor_id}-{str(self.slot_time)}"
+        return f"{str(self.patient)}-{str(self.doctor)}-{str(self.slot_time)}"
