@@ -1,4 +1,5 @@
 import "@progress/kendo-theme-default/dist/all.css";
+import Cookies from "js-cookie";
 
 function PatientRegistration(prop){
 
@@ -9,18 +10,21 @@ function PatientRegistration(prop){
         var age = e.target.age.value;
         var address = e.target.address.value;
         var phone = e.target.phone.value;
+        var symptoms = e.target.symptoms.value;
 
         var data = {
             name: name,
             age: age,
             address: address,
-            phone: phone
+            phone: phone,
+            symptoms: symptoms
         };
 
         fetch(process.env.REACT_APP_BACKEND_URL.concat('api/add_patient/'), {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': Cookies.get('csrftoken')
             },
             body: JSON.stringify(data)
         }).then(res => res.json()).then(data => {
@@ -59,6 +63,10 @@ function PatientRegistration(prop){
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Phone</span>
                             <input type="text" name="phone" class="form-control" placeholder="Phone" aria-label="Phone" />
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon1">Symptoms</span>
+                            <input type="text" name="symptoms" class="form-control" placeholder="Symptoms" aria-label="Symptoms" />
                         </div>
                     </div>
                     <div class="modal-footer">

@@ -502,7 +502,7 @@ a {
 }
 .project-boxes.jsListView .project-box-content-header {
   order: 1;
-  max-width: 120px;
+  max-width: 150px;
 }
 .project-boxes.jsListView .project-box-header {
   order: 2;
