@@ -144,7 +144,7 @@ const Doctor_dash = ({doctor_username}) => {
       // /// /// /// /// //// /// /// /// updates needed
       function goLogin()
       {
-        window.location.href = process.env.REACT_APP_BACKEND_URL.concat('/login');
+        window.location.href = process.env.REACT_APP_BACKEND_URL.concat('login');
       }
 
       function prescribe(event)
@@ -159,7 +159,7 @@ const Doctor_dash = ({doctor_username}) => {
 
       function logout(event)
       {
-        window.location.href = process.env.REACT_APP_BACKEND_URL.concat('/logout');
+        window.location.href = process.env.REACT_APP_BACKEND_URL.concat('logout');
       }
 
     return (
