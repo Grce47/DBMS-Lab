@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'job',
-    'crispy_forms',
     'rest_framework',
     'corsheaders',
     'api'
@@ -84,12 +83,8 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'finaltry',
-        'HOST': 'localhost',
-        'USER': 'root',
-        'PASSWORD': '20CS30022',
-        'PORT': '3306'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
