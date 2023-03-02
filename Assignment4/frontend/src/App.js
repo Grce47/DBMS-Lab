@@ -10,7 +10,7 @@ function App() {
   const [designation, setDesignation] = useState("");
 
   useEffect(() => {
-    fetch(url.concat("/api/getinfo/"), {
+    fetch(url.concat("api/getinfo/"), {
       method: "GET",
     })
       .then((res) => res.json())
