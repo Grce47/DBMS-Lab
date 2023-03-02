@@ -2,8 +2,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
 from job.models import UserProfile
-from .models import Patient, Room, Transaction
+from .models import Patient, Room, Transaction, Doctor_Appointment
 from .serializers import PatientSerializer
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 
 @api_view(['GET',])
@@ -153,3 +155,107 @@ def admit_patient(request):
         'Success': 'Admitted',
         'Room': f'{room_number}'
     })
+
+
+@api_view(['POST'])
+def get_slot(request):
+    response = {}
+    if (not request.user.is_authenticated):
+        response['Error'] = "Not Logged In"
+        return Response(response)
+
+    pref_time_slot = request.data.get('date', None)
+
+    if (pref_time_slot is None):
+        response['Error'] = "Form Error"
+        return Response(response)
+
+    user = request.user
+    job = UserProfile.objects.filter(user=user)
+    if (len(job) == 0):
+        response['Error'] = "Wrong User"
+        return Response(response)
+    if (job.first().designation != "front_desk_operator"):
+        response['Error'] = "Not Front Desk Operator"
+        return Response(response)
+
+    my_date = datetime.strptime(pref_time_slot, "%a %b %d %Y").date()
+
+    time_slots = []
+    current_time = datetime(year=my_date.year, month=my_date.month,
+                            day=my_date.day, hour=14, minute=0, second=0)
+    end_time = datetime(year=my_date.year, month=my_date.month,
+                        day=my_date.day, hour=17, minute=0, second=0)
+
+    while current_time < end_time:
+        time_slots.append(current_time.time())
+        current_time += timedelta(hours=1)
+
+    doctor_apps = Doctor_Appointment.objects.all()
+
+    free_time_slots = []
+    for time_slot in time_slots:
+        flag = 0
+        for doctor_app in doctor_apps:
+            if doctor_app.slot_time.time() == time_slot and doctor_app.slot_time.date() == my_date:
+                flag += 1
+        if flag != len(UserProfile.objects.filter(designation="doctor")):
+            free_time_slots.append(time_slot)
+
+    response['Success'] = free_time_slots
+    return Response(response)
+
+
+@api_view(['POST'])
+def book_slot(request):
+    response = {}
+    if (not request.user.is_authenticated):
+        response['Error'] = "Not Logged In"
+        return Response(response)
+
+    pref_date = request.data.get('date', None)
+    if (pref_date is None):
+        response['Error'] = "Form Error"
+        return Response(response)
+
+    pref_time = request.data.get('time', None)
+    if pref_time is None:
+        response['Error'] = "Form Error"
+        return Response(response)
+
+    patient_id = request.data.get('patient', None)
+    if patient_id is None:
+        response['Error'] = "Form Error"
+        return Response(response)
+
+    my_date = datetime.strptime(
+        pref_date + " " + pref_time, "%a %b %d %Y %H:%M:%S")
+
+    timezone.activate(timezone.get_current_timezone())
+
+    my_date = timezone.make_aware(my_date)
+
+    doctor_apps = Doctor_Appointment.objects.all()
+
+    doctor_id = []
+
+    booked = False
+
+    for doctor_app in doctor_apps:
+        if doctor_app.slot_time == my_date:
+            doctor_id.append(doctor_app.doctor.id)
+
+    all_doctors = UserProfile.objects.filter(designation="doctor")
+    for doctor in all_doctors:
+        if doctor.user.id not in doctor_id:
+            booked = True
+            Doctor_Appointment(doctor=doctor.user, patient=Patient.objects.filter(
+                id=patient_id).first(), slot_time=my_date).save()
+            break
+
+    if booked:
+        response['Success'] = 'Booking Done'
+    else:
+        response['Error'] = 'Booking Error'
+
+    return Response(response)

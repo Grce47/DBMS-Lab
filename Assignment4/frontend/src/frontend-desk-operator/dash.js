@@ -8,6 +8,7 @@ const FrontOperatorDash = ({fod}) => {
   
   // get data from IP address
   const [patientData, setPatientData] = useState({patients: []});
+  const [patientID, setPatientID] = useState(0);
 
 
   // fetch data from backend
@@ -152,9 +153,8 @@ const FrontOperatorDash = ({fod}) => {
         patientList.forEach((patient) => {
           // search in name, ID, Phone
           var patientName = patient.querySelector('.patient-name').innerHTML;
-          var patientID = patient.querySelector('.patient-id').innerHTML;
           var patientPhone = patient.querySelector('.patient-phone').innerHTML;
-          if(patientName.toLowerCase().includes(search.toLowerCase()) || patientID.toLowerCase().includes(search.toLowerCase()) || patientPhone.toLowerCase().includes(search.toLowerCase()))
+          if(patientName.toLowerCase().includes(search.toLowerCase()) || patientPhone.toLowerCase().includes(search.toLowerCase()))
           {
             patient.style.display = 'block';
           }
@@ -236,7 +236,7 @@ const FrontOperatorDash = ({fod}) => {
                   </button>
                 </div>
               </div>
-              <BookSlot />
+              <BookSlot id={patientID}/>
               <div className="project-boxes jsListView" style={{overflowY: 'scroll'}}>  
                 {patientData.patients.map((patient) => {
                   return (
@@ -253,7 +253,7 @@ const FrontOperatorDash = ({fod}) => {
                           <ul class="dropdown-menu">
                             <li><button class="dropdown-item" onClick={e => discharge(patient.id)}>Discharge</button></li>
                             <li><button class="dropdown-item" onClick={e => admit_patient(patient.id)}>Admit Patient</button></li>
-                            <li><button class="dropdown-item" type='button' data-bs-toggle="modal" data-bs-target="#slot">Book Appointment</button></li>
+                            <li><button class="dropdown-item" type='button' onClick={e => {setPatientID(patient.id)}} data-bs-toggle="modal" data-bs-target="#slot">Book Appointment</button></li>
                         </ul>
                         </div>
                       </div>
