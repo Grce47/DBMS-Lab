@@ -1,3 +1,0 @@
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver 10.117.145.57:8080
