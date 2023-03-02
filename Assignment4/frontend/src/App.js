@@ -1,35 +1,35 @@
 import "./App.css";
-// import Login from "./components/Login";
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import DoctorDash from "./components/doctor_dash";
+import FrontOperatorDash from "./frontend-desk-operator/dash"
 
-const url = "http://127.0.0.1:8000/";
+const url = process.env.REACT_APP_BACKEND_URL;
 
 function App() {
   const [username, setUsername] = useState("");
   const [designation, setDesignation] = useState("");
 
   useEffect(() => {
-    fetch(url.concat("api/getinfo/"), {
+    fetch(url.concat("/api/getinfo/"), {
       method: "GET",
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("====================================");
-        console.log({ data });
-        console.log("====================================");
         setUsername(data.user);
         setDesignation(data.job);
       });
   }, []);
 
-
-
   if (username == "-1") {
     window.location.replace(url.concat("login/"));
+  } else if (designation == "doctor") {
+    return <DoctorDash doctor_username={username} />;
+  } else if (designation == "front_desk_operator") {
+    return <FrontOperatorDash fod={username}></FrontOperatorDash>
+  } else if (designation == "database_admin") {
+    return <></>;
   } else {
-   
-    return <div>React</div>;
+    return <></>;
   }
 }
 

@@ -9,8 +9,8 @@ class Patient(models.Model):
     address = models.CharField(max_length=50, default=None)
     phone = models.CharField(max_length=50, default=None)
     age = models.CharField(max_length=50, default=None)
-    symptoms = models.CharField(max_length=50, default=None)
-    prescription = models.CharField(max_length=50, default=None)
+    symptoms = models.CharField(max_length=50,default=None,blank=True)
+
 
 
 class Room(models.Model):

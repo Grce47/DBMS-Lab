@@ -114,7 +114,7 @@ body{
     padding:10px;
     border-radius: 10px;
     width: 60px;
-    /* position: absolute; */
+    position: absolute;
     right:30px;
     bottom: 30px;
     cursor: pointer;

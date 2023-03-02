@@ -1,7 +1,16 @@
-from rest_framework.serializers import ModelSerializer
-from .models import Patient
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
+from .models import Patient, Transaction
+
 
 class PatientSerializer(ModelSerializer):
-    class Meta: 
+    prescription = SerializerMethodField('eval_pres')
+
+    def eval_pres(self, foo):
+        transaction = Transaction.objects.filter(patient=foo)
+        if len(transaction) == 0:
+            return ""
+        return transaction.last().prescription
+
+    class Meta:
         model = Patient
-        fields = '__all__'
+        fields = ('id', 'name', 'address', 'phone', 'age', 'symptoms','prescription')
