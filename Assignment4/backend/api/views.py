@@ -61,7 +61,8 @@ def add_patient(request):
             age = age,
             address = address, 
             phone = phone,
-            prescription = 'None'
+            symptoms = '', 
+            prescription = ''
         )
         patient.save() 
         return Response({
@@ -121,17 +122,21 @@ def add_prescription(request):
 @api_view(['POST'])
 def admit_patient(request): 
     #TODO add authentication
+    #TODO add many checks 
     patient_id = request.data.get('id', None)
+    patient = Patient.objects.filter(id = patient_id)
     if(patient_id == None): 
         return Response({
             'Error': 'patient_id not sent'
         })
-    available_room = Room.object.filter(patient=None).first() 
+    available_room = Room.objects.filter(patient=None).first() 
     if available_room is None: 
         return Response({
             'Error': 'Room not available'
         })
     room_number = available_room.number
+    available_room.patient = patient.first()
+    available_room.save()
     return Response({
         'Success': 'Admitted',
         'Room': f'{room_number}'
