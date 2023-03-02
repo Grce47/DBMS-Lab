@@ -63,7 +63,7 @@ class Test(models.Model):
 class Test_Appointment(models.Model):
     patient_id = models.IntegerField()
     doctor_id = models.IntegerField()
-    test_type = models.CharField(max_length=50)
+    test_type = models.CharField(max_length=50,default=None)
     slot_time = models.DateTimeField()
 
     def __str__(self) -> str:
