@@ -1,7 +1,13 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from .models import Patient, Transaction, Test
+from .models import Patient, Transaction, Test, Admit
 from job.models import UserProfile
 from django.contrib.auth.models import User
+
+
+class AdmitSerializer(ModelSerializer):
+    class Meta:
+        model = Admit
+        fields = '__all__'
 
 
 class TestSerializer(ModelSerializer):

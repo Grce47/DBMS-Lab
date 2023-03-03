@@ -5,9 +5,10 @@ from django.utils import timezone
 from job.models import UserProfile
 from .models import Patient, Room, Transaction, Doctor_Appointment, Admit
 from .serializers import PatientSerializer, UserSerializer
+from django.http import HttpResponse
 from datetime import datetime, timedelta
 from django.utils import timezone
-from .utils import check_designation, designation_in_list, DATA_ENTRY_OPERATOR, DATABASE_ADMIN, DOCTOR, FRONT_DESK_OPERATOR
+from .utils import check_designation, designation_in_list, DATA_ENTRY_OPERATOR, DATABASE_ADMIN, DOCTOR, FRONT_DESK_OPERATOR, download_csv
 
 
 @api_view(['GET',])
@@ -183,24 +184,21 @@ def add_prescription(request):
     if (not request.user.is_authenticated or not check_designation(request.user, DOCTOR)):
         response['Error'] = 'Not Authenticated'
     else:
-        user = User.objects.filter(username=request.user.username).first()
-        job = UserProfile.objects.filter(user=user).first()
+        user = request.user
         patient_id = request.data.get('patient_id', None)
         if (patient_id is None):
             response['Error'] = 'Patient Id not Found'
         else:
             patient = Patient.objects.filter(id=patient_id).first()
-            if (job.designation != "doctor"):
-                response['Error'] = 'Not Doctor'
+
+            prescription = request.data.get('prescription', None)
+            if (prescription is None):
+                response['Error'] = 'Prescription not found'
             else:
-                prescription = request.data.get('prescription', None)
-                if (prescription is None):
-                    response['Error'] = 'Prescription not found'
-                else:
-                    transaction = Transaction(
-                        patient=patient, doctor=user, prescription=prescription)
-                    transaction.save()
-                    response['Success'] = 'Prescriptions Added'
+                transaction = Transaction(
+                    patient=patient, doctor=user, prescription=prescription)
+                transaction.save()
+                response['Success'] = 'Prescriptions Added'
     return Response(response)
 
 
@@ -346,3 +344,13 @@ def book_slot(request):
         response['Error'] = 'Booking Error'
 
     return Response(response)
+
+
+def download_data(request):
+    if (not request.user.is_authenticated or not check_designation(request.user, DATABASE_ADMIN)):
+        return Response({
+            'Error': 'Not Logged In Or Wrong Designation'
+        })
+    data = download_csv(Admit, request, Admit.objects.all())
+
+    return HttpResponse(data, content_type='text/csv')

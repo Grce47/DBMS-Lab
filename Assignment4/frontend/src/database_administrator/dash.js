@@ -98,8 +98,7 @@ const DatabaseAdmin = ({admin}) => {
         patientList.forEach((patient) => {
           // search in name, ID, Phone
           var patientName = patient.querySelector('.patient-name').innerHTML;
-          var patientPhone = patient.querySelector('.patient-phone').innerHTML;
-          if(patientName.toLowerCase().includes(search.toLowerCase()) || patientPhone.toLowerCase().includes(search.toLowerCase()))
+          if(patientName.toLowerCase().includes(search.toLowerCase()))
           {
             patient.style.display = 'block';
           }
@@ -108,6 +107,10 @@ const DatabaseAdmin = ({admin}) => {
             patient.style.display = 'none';
           }
         });
+      }
+
+      function downloadLog(){
+        window.location.href = process.env.REACT_APP_BACKEND_URL.concat('api/downloadadmit/');
       }
 
       function delete_user(id)
@@ -159,7 +162,7 @@ const DatabaseAdmin = ({admin}) => {
                   <line x1={12} y1={5} x2={12} y2={19} />
                   <line x1={5} y1={12} x2={19} y2={12} /></svg>
               </button>
-              <button className="add-btn" title="Download Log" onC>
+              <button className="add-btn" title="Download Log" onClick={downloadLog}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v13M5 12l7 7 7-7"/></svg>
               </button>
               <UserRegistration userData = {userData} setuserData = {setuserData}/>
