@@ -3,8 +3,8 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
 from django.utils import timezone
 from job.models import UserProfile
-from .models import Patient, Room, Transaction, Doctor_Appointment, Admit
-from .serializers import PatientSerializer, UserSerializer
+from .models import Patient, Room, Transaction, Doctor_Appointment, Admit, Test
+from .serializers import PatientSerializer, UserSerializer, TransactionSerializer
 from django.http import HttpResponse
 from datetime import datetime, timedelta
 from django.utils import timezone
@@ -354,3 +354,58 @@ def download_data(request):
     data = download_csv(Admit, request, Admit.objects.all())
 
     return HttpResponse(data, content_type='text/csv')
+
+
+@api_view(['GET'])
+def list_transactions(request):
+    # if (not request.user.is_authenticated):
+    #     return Response({"Error": "Not Logged In"})
+
+    transactions = Transaction.objects.all()
+    serializer = TransactionSerializer(transactions, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def add_test(request):
+    # if (not request.user.is_authenticated):
+    #     return Response({"Error": "Not Logged In"})
+    transaction_id = request.data.get('id', None)
+    if transaction_id is None:
+        return Response({
+            'Error': 'Transaction id not recieved'
+        })
+    transaction = Transaction.objects.filter(id=transaction_id)
+    if len(transaction) == 0:
+        return Response({
+            'Error': 'Provided transaction id not exist'
+        })
+    test_objects = Test.objects(transaction=transaction.first())
+
+    text = request.data.get('text', None)
+    image = request.data.get('image', None)
+    if text is None and image is None:
+        return Response({
+            'Error': 'Both text and image not provided'
+        })
+
+    if len(test_objects) is 0:
+        test = Test(
+            transaction=transaction.first(),
+            report_text=text,
+            report_image=image
+        )
+        test.save()
+        return Response({
+            'Success': 'Test added'
+        })
+    else:
+        test = test_objects.first()
+        if text is not None:
+            test.report_text = text
+        if image is not None:
+            test.report_image = image
+        test.save()
+        return Response({
+            'Success': 'Test added'
+        })
