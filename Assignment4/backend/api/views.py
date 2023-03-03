@@ -5,11 +5,12 @@ from django.utils import timezone
 from job.models import UserProfile
 from .models import Patient, Room, Transaction, Doctor_Appointment, Admit, Test
 from .serializers import PatientSerializer, UserSerializer, TransactionSerializer
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from datetime import datetime, timedelta
 from django.utils import timezone
 from .utils import check_designation, designation_in_list, DATA_ENTRY_OPERATOR, DATABASE_ADMIN, DOCTOR, FRONT_DESK_OPERATOR, download_csv
-
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 @api_view(['GET',])
 def getinfo(request):
@@ -380,7 +381,7 @@ def add_test(request):
         return Response({
             'Error': 'Provided transaction id not exist'
         })
-    test_objects = Test.objects(transaction=transaction.first())
+    test_objects = Test.objects.filter(transaction=transaction.first())
 
     text = request.data.get('text', None)
     image = request.data.get('image', None)
@@ -409,3 +410,101 @@ def add_test(request):
         return Response({
             'Success': 'Test added'
         })
+        
+        
+@api_view(['POST'])
+def view_text(request): 
+    # if (not request.user.is_authenticated):
+    #     return Response({"Error": "Not Logged In"})
+    transaction_id = request.data.get('id', None)
+    if transaction_id is None:
+        return Response({
+            'Error': 'Transaction id not recieved'
+        })
+    transaction = Transaction.objects.filter(id=transaction_id)
+    if len(transaction) == 0:
+        return Response({
+            'Error': 'Provided transaction id not exist'
+        })
+    test_objects = Test.objects.filter(transaction=transaction.first())
+    if len(test_objects) is 0:
+        return Response({
+            'Error': 'Empty'
+        })
+    text = test_objects.first().report_text
+    if text is None:
+        return Response({
+            'Error': 'Empty'
+        })
+    return Response({
+        'Success': text
+    })
+
+
+@api_view(['POST'])
+def view_image(request): 
+    # if (not request.user.is_authenticated):
+    #     return Response({"Error": "Not Logged In"})
+    transaction_id = request.data.get('id', None)
+    if transaction_id is None:
+        return Response({
+            'Error': 'Transaction id not recieved'
+        })
+    transaction = Transaction.objects.filter(id=transaction_id)
+    if len(transaction) == 0:
+        return Response({
+            'Error': 'Provided transaction id not exist'
+        })
+    test_objects = Test.objects.filter(transaction=transaction.first())
+    if len(test_objects) is 0:
+        return Response({
+            'Error': 'Empty'
+        })
+    image = test_objects.first().report_image
+    if image is None:
+        return Response({
+            'Error': 'Empty'
+        })  
+    
+    f = open(image.path, 'rb')
+    response = FileResponse(f, content_type='image/png')
+    return response
+    
+
+@api_view(['POST'])
+def get_pdf(request):               
+    # if (not request.user.is_authenticated):
+    #     return Response({"Error": "Not Logged In"})
+    transaction_id = request.data.get('id', None)
+    if transaction_id is None:
+        return Response({
+            'Error': 'Transaction id not recieved'
+        })
+    transaction = Transaction.objects.filter(id=transaction_id)
+    if len(transaction) == 0:
+        return Response({
+            'Error': 'Provided transaction id not exist'
+        })
+    test_objects = Test.objects.filter(transaction=transaction.first())
+    if len(test_objects) is 0:
+        return Response({
+            'Error': 'No data'
+        })
+    image = test_objects.first().report_image
+    text = test_objects.first().report_text
+    if image is None or text is None:
+        return Response({
+            'Error': 'No data'
+        })
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"'
+    pdf_canvas = canvas.Canvas(response, pagesize=letter)
+
+    image_path = image.path
+    pdf_canvas.drawImage(image_path, x=50, y=50, width=300, height=200)
+    
+    pdf_canvas.drawString(100, 300, text)
+    
+    pdf_canvas.save()
+    return response

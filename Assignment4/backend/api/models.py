@@ -53,8 +53,8 @@ class Doctor_Appointment(models.Model):
 class Test(models.Model):
     transaction = models.OneToOneField(
         Transaction, on_delete=models.CASCADE, null=True)
-    report_text = models.CharField(max_length=50, default=None)
-    report_image = models.ImageField(upload_to='images/')
+    report_text = models.CharField(max_length=50, default=None, null=True, blank=True)
+    report_image = models.ImageField(upload_to='images/', null=True, blank=True)
 
     def __str__(self) -> str:
         return f"{str(self.transaction)}-{str(self.report_text)[:5]}"

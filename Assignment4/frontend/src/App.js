@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import DoctorDash from "./components/doctor_dash";
 import FrontOperatorDash from "./frontend-desk-operator/dash"
 import DatabaseAdmin from "./database_administrator/dash";
+import DataEntryDash from "./data_entry_operator/dash";
 
 const url = process.env.REACT_APP_BACKEND_URL;
 
@@ -30,7 +31,7 @@ function App() {
   } else if (designation == "database_admin") {
     return <DatabaseAdmin admin={username} />;
   } else {
-    return <></>;
+    return <DataEntryDash de_user={username}/>;
   }
 }
 
