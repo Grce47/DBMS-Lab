@@ -43,7 +43,7 @@ class Transaction(models.Model):
 
 
 class Doctor_Appointment(models.Model):
-    doctor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    doctor = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True)
     slot_time = models.DateTimeField()
 
@@ -60,12 +60,3 @@ class Test(models.Model):
     def __str__(self) -> str:
         return f"{str(self.transaction)}-{str(self.report_text)[:5]}"
 
-
-class Test_Appointment(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True)
-    doctor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    test_type = models.CharField(max_length=50, default=None)
-    slot_time = models.DateTimeField()
-
-    def __str__(self) -> str:
-        return f"{str(self.patient)}-{str(self.doctor)}-{str(self.slot_time)}"

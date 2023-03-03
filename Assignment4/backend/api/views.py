@@ -1,11 +1,13 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
+from django.utils import timezone
 from job.models import UserProfile
-from .models import Patient, Room, Transaction, Doctor_Appointment
-from .serializers import PatientSerializer
+from .models import Patient, Room, Transaction, Doctor_Appointment, Admit
+from .serializers import PatientSerializer, UserSerializer
 from datetime import datetime, timedelta
 from django.utils import timezone
+from .utils import check_designation, designation_in_list, DATA_ENTRY_OPERATOR, DATABASE_ADMIN, DOCTOR, FRONT_DESK_OPERATOR
 
 
 @api_view(['GET',])
@@ -25,26 +27,72 @@ def getinfo(request):
     return Response(response)
 
 
+@api_view(['GET'])
+def getusers(request):
+    if (not request.user.is_authenticated or not check_designation(request.user, DATABASE_ADMIN)):
+        return Response({
+            'Error': 'Not Logged In Or Wrong Designation'
+        })
+
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response({'Success': serializer.data})
+
+
 @api_view(['POST'])
 def add_user(request):
-    if (request.user.is_authenticated):
-        # check designation -> da
-        # username , email, pass, job
-        username = None
-        email = None
-        password = None
-        designation = None
-        user = User(username=username, email=email, password=password)
-        user.save()
+    if (not request.user.is_authenticated or not check_designation(request.user, DATABASE_ADMIN)):
+        return Response({
+            'Error': 'Not Logged In Or Wrong Designation'
+        })
+    username = request.data.get('username', None)
+    email = request.data.get('email', None)
+    password = request.data.get('password', None)
+    designation = request.data.get('designation', None)
+
+    if (username is None or email is None or password is None or designation is None):
+        return Response({"Error": "Form Error"})
+
+    if (not designation_in_list(designation)):
+        return Response({"Error": "Wrong Designation"})
+
+    try:
+        user = User.objects.create_user(
+            username=username, password=password, email=email)
         job = UserProfile(user=user, designation=designation)
         job.save()
+        return Response({"Success": "User Created"})
+    except:
+        return Response({"Error": "Something went wrong"})
+
+
+@api_view(['POST'])
+def delete_user(request):
+    if (not request.user.is_authenticated or not check_designation(request.user, DATABASE_ADMIN)):
+        return Response({
+            'Error': 'Not Logged In Or Wrong Designation'
+        })
+
+    user_id = request.data.get('user_id', None)
+    if (user_id is None):
+        return Response({"Error": "Form Error"})
+
+    user = User.objects.filter(id=user_id)
+    user.delete()
+
+    return Response({"Success": "Deleted user"})
 
 
 @api_view(['GET'])
 def list_patients(request):
-    # TODO Authentication
-    # if(request.user.is_authenticated):
-    patientList = Patient.objects.all()
+    if (not request.user.is_authenticated):
+        return Response({"Error": "Not Logged In"})
+
+    admits = Admit.objects.filter(exit_time=None)
+    patient_id = [i.patient.id for i in admits]
+
+    patientList = Patient.objects.filter(id__in=patient_id)
+
     serializer = PatientSerializer(patientList, many=True)
     resonse = {}
     resonse['data'] = serializer.data
@@ -56,64 +104,87 @@ def list_patients(request):
     return Response(resonse)
 
 
+@api_view(['GET'])
+def doctor_patient_list(request):
+    pass
+
+
 @api_view(['POST'])
 def add_patient(request):
-    if (request.method == 'POST'):
-        name = request.data.get('name', None)
-        age = request.data.get('age', None)
-        address = request.data.get('address', None)
-        phone = request.data.get('phone', None)
-        symptoms = request.data.get('symptoms', None)
-        if (name is None or age is None or address is None or phone is None or symptoms is None):
-            return Response({"Error": "Form Error"})
-        patient = Patient(
-            name=name,
-            age=age,
-            address=address,
-            phone=phone,
-            symptoms=symptoms,
-        )
-        patient.save()
+
+    if (not request.user.is_authenticated or not check_designation(request.user, FRONT_DESK_OPERATOR)):
         return Response({
-            'Success': 'Data entered'
+            'Error': 'Not Logged In Or Wrong Designation'
         })
-    else:
-        return Response({
-            'Error': 'Send POST request'
-        })
+
+    name = request.data.get('name', None)
+    age = request.data.get('age', None)
+    address = request.data.get('address', None)
+    phone = request.data.get('phone', None)
+    symptoms = request.data.get('symptoms', None)
+    if (name is None or age is None or address is None or phone is None or symptoms is None):
+        return Response({"Error": "Form Error"})
+
+    if (len(Patient.objects.filter(name=name, age=age, address=address, phone=phone)) != 0):
+        return Response({"Error": "Already Exist"})
+
+    patient = Patient(
+        name=name,
+        age=age,
+        address=address,
+        phone=phone,
+        symptoms=symptoms,
+    )
+    patient.save()
+
+    admit = Admit(patient=patient, room=None, exit_time=None)
+    admit.save()
+
+    return Response({
+        'Success': 'Data entered'
+    })
 
 
 @api_view(['POST'])
 def delete_patient(request):
-    # TODO Add security
-    if (request.method == 'POST'):
-        patient_id = request.data.get('id', None)
-        if (patient_id == None):
-            return Response({
-                'Error': 'Id not given'
-            })
-        patient = Patient.objects.filter(id=patient_id)
-        patient.delete()
+    if (not request.user.is_authenticated or not check_designation(request.user, FRONT_DESK_OPERATOR)):
         return Response({
-            'Success': 'Deleted'
+            'Error': 'Not Logged In Or Wrong Designation'
         })
-    else:
-        return Response({
-            'Error': 'Send POST Request'
-        })
+
+    patient_id = request.data.get('id', None)
+    if (patient_id is None):
+        return Response({"Error": "Form Error"})
+
+    patient = Patient.objects.filter(id=patient_id).first()
+
+    if (patient is None):
+        return Response({"Error": "Patient Not Found"})
+
+    admit = Admit.objects.filter(
+        patient=patient).filter(exit_time=None).first()
+
+    if admit is None:
+        return Response({"Error": "Already not admitted"})
+
+    admit.exit_time = timezone.now()
+    admit.save()
+
+    room = Room.objects.filter(patient=patient).first()
+    room.patient = None
+    room.save()
+
+    return Response({"Success": "Discharged"})
 
 
 @api_view(['POST'])
 def add_prescription(request):
-    # TODO Add authentication
     response = {}
-    if (not request.user.is_authenticated):
+    if (not request.user.is_authenticated or not check_designation(request.user, DOCTOR)):
         response['Error'] = 'Not Authenticated'
     else:
         user = User.objects.filter(username=request.user.username).first()
         job = UserProfile.objects.filter(user=user).first()
-        print(user)
-        print(job.designation)
         patient_id = request.data.get('patient_id', None)
         if (patient_id is None):
             response['Error'] = 'Patient Id not Found'
@@ -135,22 +206,38 @@ def add_prescription(request):
 
 @api_view(['POST'])
 def admit_patient(request):
-    # TODO add authentication
-    # TODO add many checks
+    if (not request.user.is_authenticated or not check_designation(request.user, FRONT_DESK_OPERATOR)):
+        return Response({
+            'Error': 'Not Logged In Or Wrong Designation'
+        })
+
     patient_id = request.data.get('id', None)
-    patient = Patient.objects.filter(id=patient_id)
     if (patient_id == None):
         return Response({
             'Error': 'patient_id not sent'
         })
+    patient = Patient.objects.filter(id=patient_id).first()
+
+    if (patient is None):
+        return Response({"Error": "Patient Not FOund"})
+
+    if (len(Room.objects.filter(patient=patient)) != 0):
+        return Response({"Error": "Already Admitted"})
+
     available_room = Room.objects.filter(patient=None).first()
     if available_room is None:
         return Response({
             'Error': 'Room not available'
         })
     room_number = available_room.number
-    available_room.patient = patient.first()
+    available_room.patient = patient
     available_room.save()
+
+    admit = Admit.objects.filter(
+        patient=patient).filter(exit_time=None).first()
+    admit.room = available_room
+    admit.save()
+
     return Response({
         'Success': 'Admitted',
         'Room': f'{room_number}'

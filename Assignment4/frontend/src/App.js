@@ -2,6 +2,7 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import DoctorDash from "./components/doctor_dash";
 import FrontOperatorDash from "./frontend-desk-operator/dash"
+import DatabaseAdmin from "./database_administrator/dash";
 
 const url = process.env.REACT_APP_BACKEND_URL;
 
@@ -27,7 +28,7 @@ function App() {
   } else if (designation == "front_desk_operator") {
     return <FrontOperatorDash fod={username}></FrontOperatorDash>
   } else if (designation == "database_admin") {
-    return <></>;
+    return <DatabaseAdmin admin={username} />;
   } else {
     return <></>;
   }
