@@ -245,6 +245,7 @@ const DataEntryDash = ({de_user}) => {
                                     method: 'POST',
                                     headers: {
                                       'Content-Type': 'application/json',
+                                      'X-CSRFToken': Cookies.get('csrftoken')
                                     },
                                     body: JSON.stringify(data),
                                 })
