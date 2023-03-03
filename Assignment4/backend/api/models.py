@@ -9,8 +9,7 @@ class Patient(models.Model):
     address = models.CharField(max_length=50, default=None)
     phone = models.CharField(max_length=50, default=None)
     age = models.CharField(max_length=50, default=None)
-    symptoms = models.CharField(max_length=50,default=None,blank=True)
-
+    symptoms = models.CharField(max_length=50, default=None, blank=True)
 
 
 class Room(models.Model):
@@ -52,11 +51,10 @@ class Doctor_Appointment(models.Model):
 
 
 class Test(models.Model):
-    transaction = models.ForeignKey(
-        Transaction, on_delete=models.SET_NULL, null=True)
+    transaction = models.OneToOneField(
+        Transaction, on_delete=models.CASCADE, null=True)
     report_text = models.CharField(max_length=50, default=None)
     report_image = models.ImageField(upload_to='images/')
 
     def __str__(self) -> str:
         return f"{str(self.transaction)}-{str(self.report_text)[:5]}"
-

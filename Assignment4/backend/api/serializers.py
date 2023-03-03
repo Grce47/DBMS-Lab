@@ -1,12 +1,25 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from .models import Patient, Transaction
+from .models import Patient, Transaction, Test
 from job.models import UserProfile
 from django.contrib.auth.models import User
+
+
+class TestSerializer(ModelSerializer):
+    class Meta:
+        model = Test
+        fields = '__all__'
 
 
 class TransactionSerializer(ModelSerializer):
     patient_username = SerializerMethodField('eval_pat')
     doctor_username = SerializerMethodField('eval_doc')
+    test = SerializerMethodField('eval_test')
+
+    def eval_test(self, foo):
+        test = Test.objects.filter(transaction=foo)
+        if (len(test) == 0):
+            return None
+        return TestSerializer(test.first(), many=False).data
 
     def eval_pat(self, foo):
         patient = Patient.objects.filter(id=foo.patient.id)
@@ -19,7 +32,7 @@ class TransactionSerializer(ModelSerializer):
     class Meta:
         model = Transaction
         fields = ('id', 'patient_username', 'doctor_username',
-                  'prescription', 'created_time')
+                  'prescription', 'created_time', 'test')
 
 
 class UserSerializer(ModelSerializer):

@@ -154,10 +154,13 @@ const DatabaseAdmin = ({admin}) => {
                   <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
                 </svg>
               </button>
-              <button className="add-btn" title="Add New Project" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal">
+              <button className="add-btn" title="Add New User" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal">
                 <svg className="btn-icon" xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
                   <line x1={12} y1={5} x2={12} y2={19} />
                   <line x1={5} y1={12} x2={19} y2={12} /></svg>
+              </button>
+              <button className="add-btn" title="Download Log" onC>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v13M5 12l7 7 7-7"/></svg>
               </button>
               <UserRegistration userData = {userData} setuserData = {setuserData}/>
               <button className="profile-btn" onClick={e => {window.location.href = process.env.REACT_APP_BACKEND_URL.concat('logout/')}}>
