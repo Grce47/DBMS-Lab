@@ -185,14 +185,14 @@ const DataEntryDash = ({de_user}) => {
                     <span className="status-number">{transactionData.transactions.length}</span>
                     <span className="status-type">Transactions available</span>
                   </div>
-                  <div className="item-status">
+                  {/* <div className="item-status">
                     <span className="status-number">24</span>
                     <span className="status-type">Upcoming</span>
                   </div>
                   <div className="item-status">
                     <span className="status-number">62</span>
                     <span className="status-type">Total Projects</span>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="view-actions">
                   <button className="view-btn list-view active" title="List View" onClick={listView}>

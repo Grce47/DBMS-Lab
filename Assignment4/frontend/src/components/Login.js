@@ -72,7 +72,7 @@ class Login extends React.Component {
     render () {
         return (
             <div className="container">
-                <div className="backbox">
+                <div className="backbox" style="background-color: '#e9e7fd';">
                     <div className="loginMsg">
                         <div className="textcontent">
                             <p className="title">Don't have an account?</p>
@@ -84,7 +84,7 @@ class Login extends React.Component {
                         <div className="textcontent">
                             <p className="title">Have an account?</p>
                             <p>Log in to see all your collection.</p>
-                            <button onClick={this.signup} id="switch2">LOG IN</button>
+                            <button onClick={this.signup} id="switch2">Log In</button>
                         </div>
                     </div>
                 </div>

@@ -215,14 +215,14 @@ const Doctor_dash = ({doctor_username}) => {
                     <span className="status-number">{patientData.patients.length}</span>
                     <span className="status-type">Patients assigned to you</span>
                   </div>
-                  <div className="item-status">
+                  {/* <div className="item-status">
                     <span className="status-number">24</span>
                     <span className="status-type">Upcoming</span>
                   </div>
                   <div className="item-status">
                     <span className="status-number">62</span>
                     <span className="status-type">Total Projects</span>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="view-actions">
                   <button className="view-btn list-view active" title="List View" onClick={listView}>
