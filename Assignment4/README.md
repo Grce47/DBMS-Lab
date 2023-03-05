@@ -2,9 +2,9 @@
 ## Contributors
 - Grace Sharma
 - Umang Singla
-- Vineet 
-- Mradul
-- Subh
+- Vineet Amol Pippal
+- Mradul Agrawal
+- Subhajyoti Halder
 ## Instruction
 - **Create virtual environment**
 ```bash
