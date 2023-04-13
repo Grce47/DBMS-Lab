@@ -20,6 +20,7 @@ function bookSlot(bookingDate, setSelectedTimeSlot, id) {
     .then((res) => res.json())
     .then((data) => {
       console.log({data});
+      alert(data.Success);
     });
 }
 

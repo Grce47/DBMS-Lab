@@ -1,7 +1,6 @@
 from job.models import UserProfile
 from django.http import HttpResponse
 import csv
-from django.core.exceptions import PermissionDenied
 
 DATABASE_ADMIN = 'database_admin'
 DOCTOR = 'doctor'

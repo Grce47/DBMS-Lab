@@ -18,6 +18,7 @@ class Room(models.Model):
     number = models.IntegerField(default=0)
     patient = models.OneToOneField(
         Patient, on_delete=models.SET_NULL, null=True, blank=True)
+    emergency = models.BooleanField(default=False)
 
 
 class Admit(models.Model):
@@ -54,7 +55,7 @@ class Test(models.Model):
     transaction = models.OneToOneField(
         Transaction, on_delete=models.CASCADE, null=True)
     report_text = models.CharField(max_length=50, default=None, null=True, blank=True)
-    report_image = models.ImageField(upload_to='images/', null=True, blank=True)
+    report_image = models.ImageField(upload_to='images/', null=True, blank=True,default='images/default.webp')
 
     def __str__(self) -> str:
         return f"{str(self.transaction)}-{str(self.report_text)[:5]}"

@@ -18,11 +18,11 @@ const Doctor_dash = ({doctor_username}) => {
 
   // async useEffect
   useEffect(() => {
-    fetch (url.concat('api/list_patient'), {
+    fetch (url.concat('api/doctor_patient'), {
       method: 'GET',
     }).then(response => response.json()).then(data => {
       console.log(data);
-      setPatientData({patients: data.data});
+      setPatientData({patients: data.data}); 
     })
   }, [patientData.patients.length]);
 
@@ -189,7 +189,7 @@ const Doctor_dash = ({doctor_username}) => {
               </button>
 
               <button className="profile-btn">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg" width={'20px'} height={'20px'}/>
+                <img src="https://upload.wikimedia.org/wikiped  ia/commons/2/2c/Default_pfp.svg" width={'20px'} height={'20px'}/>
                 <span onClick={logout}>Logout</span>
               </button>
             </div>
@@ -252,7 +252,7 @@ const Doctor_dash = ({doctor_username}) => {
                     <div className="project-box-wrapper">
                     <div className="project-box patient" style={{ backgroundColor: bckgColors[random()] }} onMouseEnter={patientHover} onMouseLeave={patientUnHover}>
                       <div className="project-box-header">
-                        <span className='patient-id'>{patient.id}</span>
+                        <span className='patient-id'>{patient.patient_id}</span>
                         <div className="more-wrapper">
                           <button className="project-btn-more">
                             <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="feather feather-more-vertical">
@@ -263,11 +263,11 @@ const Doctor_dash = ({doctor_username}) => {
                         </div>
                       </div>
                       <div className="project-box-content-header">
-                        <p className="box-content-header patient-name">{patient.name}</p>
-                        <p className="box-content-subheader">{patient.address}</p>
+                        <p className="box-content-header patient-name">{patient.patient_username}</p>
+                        <p className="box-content-subheader">Alotted slot: {patient.slot_time}</p>
                       </div>
                       <div className="box-progress-wrapper">
-                        <p className="box-progress-header patient-phone">Phone: {patient.phone}</p>
+                        <p className="box-progress-header patient-phone">Room No.: {patient.room}</p>
                         {/* <div className="box-progress-bar">
                           <span className="box-progress" style={{width: '60%', backgroundColor: bckgColors[0]}} />
                         </div>
@@ -282,7 +282,7 @@ const Doctor_dash = ({doctor_username}) => {
                           Symptoms:
                         </div> 
                         {/* insert spaces */}
-                        <pre style={{display:'inline'}}> {patient.symptoms}</pre>
+                        <pre style={{display:'inline'}}> {patient.patient_symptoms}</pre>
                       </div>
                       <div className="project-box-footer">
                         {/* <div className="participants">

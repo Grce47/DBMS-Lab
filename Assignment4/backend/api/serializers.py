@@ -1,7 +1,62 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from .models import Patient, Transaction, Test, Admit
+from .models import Patient, Transaction, Test, Admit, Doctor_Appointment, Room
 from job.models import UserProfile
 from django.contrib.auth.models import User
+
+
+class DoctorAppSerializer(ModelSerializer):
+    patient_username = SerializerMethodField('eval_pat')
+    patient_id = SerializerMethodField('eval_id')
+    patient_symptoms = SerializerMethodField('eval_sym')
+    prescription = SerializerMethodField('eval_pres')
+    room = SerializerMethodField('eval_room')
+
+    def eval_id(self, foo):
+        patient = Patient.objects.filter(id=foo.patient.id)
+        if (len(patient) == 0):
+            return ""
+
+        return patient.first().id
+
+    def eval_room(self, foo):
+        patient = Patient.objects.filter(id=foo.patient.id)
+        if (len(patient) == 0):
+            return "None"
+
+        room = Room.objects.filter(patient=patient.first())
+        if (len(room) == 0):
+            return "None"
+
+        return room.first().number
+
+    def eval_pres(self, foo):
+        patient = Patient.objects.filter(id=foo.patient.id)
+        if (len(patient) == 0):
+            return ""
+        transaction = Transaction.objects.filter(patient=patient.first())
+        if len(transaction) == 0:
+            return ""
+        return transaction.last().prescription
+    
+
+    def eval_sym(self, foo):
+        try:
+            patient = Patient.objects.filter(id=foo.patient.id)
+            return patient.first().symptoms
+        except:
+            return ""
+
+    def eval_pat(self, foo):
+        try:
+            patient = Patient.objects.filter(id=foo.patient.id)
+            return patient.first().name
+        except:
+            return ""
+
+    class Meta:
+        model = Doctor_Appointment
+        fields = ('id', 'patient_username', 'slot_time',
+                  'patient_symptoms', 'prescription', 'room', "patient_id")
 
 
 class AdmitSerializer(ModelSerializer):

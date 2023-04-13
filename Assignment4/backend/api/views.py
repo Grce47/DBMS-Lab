@@ -4,13 +4,14 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from job.models import UserProfile
 from .models import Patient, Room, Transaction, Doctor_Appointment, Admit, Test
-from .serializers import PatientSerializer, UserSerializer, TransactionSerializer
+from .serializers import PatientSerializer, UserSerializer, TransactionSerializer, DoctorAppSerializer
 from django.http import HttpResponse, FileResponse
 from datetime import datetime, timedelta
 from django.utils import timezone
 from .utils import check_designation, designation_in_list, DATA_ENTRY_OPERATOR, DATABASE_ADMIN, DOCTOR, FRONT_DESK_OPERATOR, download_csv
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+
 
 @api_view(['GET',])
 def getinfo(request):
@@ -108,10 +109,16 @@ def list_patients(request):
 
 @api_view(['GET'])
 def doctor_patient_list(request):
-    pass
+    if (not request.user.is_authenticated or not check_designation(request.user, DOCTOR)):
+        return Response({"Error": "Wrong user"})
+
+    doctor_apps = Doctor_Appointment.objects.filter(
+        doctor=request.user).order_by('slot_time')
+    serializer = DoctorAppSerializer(doctor_apps, many=True)
+    return Response({"data": serializer.data})
 
 
-@api_view(['POST'])
+@ api_view(['POST'])
 def add_patient(request):
 
     if (not request.user.is_authenticated or not check_designation(request.user, FRONT_DESK_OPERATOR)):
@@ -126,18 +133,23 @@ def add_patient(request):
     symptoms = request.data.get('symptoms', None)
     if (name is None or age is None or address is None or phone is None or symptoms is None):
         return Response({"Error": "Form Error"})
-
-    if (len(Patient.objects.filter(name=name, age=age, address=address, phone=phone)) != 0):
-        return Response({"Error": "Already Exist"})
-
-    patient = Patient(
-        name=name,
-        age=age,
-        address=address,
-        phone=phone,
-        symptoms=symptoms,
-    )
-    patient.save()
+    patient = None
+    patients = Patient.objects.filter(
+        name=name, age=age, address=address, phone=phone)
+    if (len(patients) != 0):
+        patient = patients.first()
+        admit = Admit.objects.filter(patient=patient).first()
+        if (admit.exit_time is None):
+            return Response({"Error": "Already Admitted"})
+    else:
+        patient = Patient(
+            name=name,
+            age=age,
+            address=address,
+            phone=phone,
+            symptoms=symptoms,
+        )
+        patient.save()
 
     admit = Admit(patient=patient, room=None, exit_time=None)
     admit.save()
@@ -147,7 +159,7 @@ def add_patient(request):
     })
 
 
-@api_view(['POST'])
+@ api_view(['POST'])
 def delete_patient(request):
     if (not request.user.is_authenticated or not check_designation(request.user, FRONT_DESK_OPERATOR)):
         return Response({
@@ -179,7 +191,7 @@ def delete_patient(request):
     return Response({"Success": "Discharged"})
 
 
-@api_view(['POST'])
+@ api_view(['POST'])
 def add_prescription(request):
     response = {}
     if (not request.user.is_authenticated or not check_designation(request.user, DOCTOR)):
@@ -196,14 +208,21 @@ def add_prescription(request):
             if (prescription is None):
                 response['Error'] = 'Prescription not found'
             else:
-                transaction = Transaction(
-                    patient=patient, doctor=user, prescription=prescription)
-                transaction.save()
+                transaction = Transaction.objects.filter(
+                    patient=patient).filter(doctor=user)
+                if (len(transaction) == 0):
+                    transaction = Transaction(
+                        patient=patient, doctor=user, prescription=prescription)
+                    transaction.save()
+                else:
+                    transaction = transaction.first()
+                    transaction.prescription = prescription
+                    transaction.save()
                 response['Success'] = 'Prescriptions Added'
     return Response(response)
 
 
-@api_view(['POST'])
+@ api_view(['POST'])
 def admit_patient(request):
     if (not request.user.is_authenticated or not check_designation(request.user, FRONT_DESK_OPERATOR)):
         return Response({
@@ -211,6 +230,11 @@ def admit_patient(request):
         })
 
     patient_id = request.data.get('id', None)
+    is_emergency = request.data.get('emergency', None)
+
+    if (is_emergency == None):
+        return Response({"Error": "Emergency value not found"})
+
     if (patient_id == None):
         return Response({
             'Error': 'patient_id not sent'
@@ -223,7 +247,14 @@ def admit_patient(request):
     if (len(Room.objects.filter(patient=patient)) != 0):
         return Response({"Error": "Already Admitted"})
 
-    available_room = Room.objects.filter(patient=None).first()
+    available_room = Room.objects.filter(patient=None)
+
+    if is_emergency == '0' or is_emergency == 0:
+        print("here")
+        available_room = available_room.filter(emergency=False)
+
+    available_room = available_room.first()
+
     if available_room is None:
         return Response({
             'Error': 'Room not available'
@@ -243,7 +274,7 @@ def admit_patient(request):
     })
 
 
-@api_view(['POST'])
+@ api_view(['POST'])
 def get_slot(request):
     response = {}
     if (not request.user.is_authenticated):
@@ -292,7 +323,7 @@ def get_slot(request):
     return Response(response)
 
 
-@api_view(['POST'])
+@ api_view(['POST'])
 def book_slot(request):
     response = {}
     if (not request.user.is_authenticated):
@@ -335,8 +366,11 @@ def book_slot(request):
     for doctor in all_doctors:
         if doctor.user.id not in doctor_id:
             booked = True
-            Doctor_Appointment(doctor=doctor.user, patient=Patient.objects.filter(
-                id=patient_id).first(), slot_time=my_date).save()
+            app = Doctor_Appointment(doctor=doctor.user, patient=Patient.objects.filter(
+                id=patient_id).first(), slot_time=my_date)
+            app.save()
+            response['Doctor'] = app.doctor.username
+            response['Slot'] = app.slot_time
             break
 
     if booked:
@@ -357,20 +391,20 @@ def download_data(request):
     return HttpResponse(data, content_type='text/csv')
 
 
-@api_view(['GET'])
+@ api_view(['GET'])
 def list_transactions(request):
-    # if (not request.user.is_authenticated):
-    #     return Response({"Error": "Not Logged In"})
+    if (not request.user.is_authenticated):
+        return Response({"Error": "Not Logged In"})
 
     transactions = Transaction.objects.all()
     serializer = TransactionSerializer(transactions, many=True)
     return Response(serializer.data)
 
 
-@api_view(['POST'])
+@ api_view(['POST'])
 def add_test(request):
-    # if (not request.user.is_authenticated):
-    #     return Response({"Error": "Not Logged In"})
+    if (not request.user.is_authenticated):
+        return Response({"Error": "Not Logged In"})
     transaction_id = request.data.get('id', None)
     if transaction_id is None:
         return Response({
@@ -410,12 +444,12 @@ def add_test(request):
         return Response({
             'Success': 'Test added'
         })
-        
-        
-@api_view(['POST'])
-def view_text(request): 
-    # if (not request.user.is_authenticated):
-    #     return Response({"Error": "Not Logged In"})
+
+
+@ api_view(['POST'])
+def view_text(request):
+    if (not request.user.is_authenticated):
+        return Response({"Error": "Not Logged In"})
     transaction_id = request.data.get('id', None)
     if transaction_id is None:
         return Response({
@@ -441,10 +475,10 @@ def view_text(request):
     })
 
 
-@api_view(['POST'])
-def view_image(request): 
-    # if (not request.user.is_authenticated):
-    #     return Response({"Error": "Not Logged In"})
+@ api_view(['POST'])
+def view_image(request):
+    if (not request.user.is_authenticated):
+        return Response({"Error": "Not Logged In"})
     transaction_id = request.data.get('id', None)
     if transaction_id is None:
         return Response({
@@ -464,17 +498,18 @@ def view_image(request):
     if image is None:
         return Response({
             'Error': 'Empty'
-        })  
-    
+        })
+
     f = open(image.path, 'rb')
     response = FileResponse(f, content_type='image/png')
     return response
-    
 
-@api_view(['POST'])
-def get_pdf(request):               
-    # if (not request.user.is_authenticated):
-    #     return Response({"Error": "Not Logged In"})
+
+@ api_view(['POST'])
+def get_pdf(request):
+    if (not request.user.is_authenticated):
+        return Response({"Error": "Not Logged In"})
+    
     transaction_id = request.data.get('id', None)
     if transaction_id is None:
         return Response({
@@ -496,15 +531,18 @@ def get_pdf(request):
         return Response({
             'Error': 'No data'
         })
-    
+
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"'
     pdf_canvas = canvas.Canvas(response, pagesize=letter)
 
+    print(image)
+
     image_path = image.path
     pdf_canvas.drawImage(image_path, x=50, y=50, width=300, height=200)
-    
+
     pdf_canvas.drawString(100, 300, text)
-    
+
     pdf_canvas.save()
     return response
+    

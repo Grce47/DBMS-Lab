@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import getinfo, list_patients, add_patient, delete_patient, add_prescription, admit_patient, get_slot, book_slot, getusers, delete_user, add_user, download_data
-from .views import add_test, list_transactions, view_image, view_text, get_pdf
+from .views import add_test, list_transactions, view_image, view_text, get_pdf, doctor_patient_list
 
 urlpatterns = [
     path('getinfo/', getinfo),
@@ -19,5 +19,6 @@ urlpatterns = [
     path('add_test/', add_test),
     path('view_image/', view_image),
     path('view_text/', view_text),
-    path('get_pdf/', get_pdf)
+    path('get_pdf/', get_pdf),
+    path('doctor_patient/', doctor_patient_list)
 ]

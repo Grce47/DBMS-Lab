@@ -7,7 +7,7 @@ function prescribed(patient, doctor_username) {
   const prescription = document.getElementById("prescr_med").value;
   // console.log({prescription});
   // get patient id from the patient clicked
-  const patient_id = patient.id;
+  const patient_id = patient.patient_id;
   // console.log({patient_id});
 
   // send prescription to backend
