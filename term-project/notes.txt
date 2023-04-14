@@ -1,2 +1,0 @@
--> Load .tar file to psql server by "pg_restore -U user -d database file.tar" command
--> build connection with psql server in python
