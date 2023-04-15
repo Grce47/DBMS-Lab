@@ -23,10 +23,12 @@ virtualenv .env                  # Create a virtual environment
 pip install -r requirements.txt   # All neccessary library will be downloaded
 ```
 
-- **Reset pg_stat_statements**
+- **Run Application**
 
 ```bash
-SELECT pg_stat_statements_reset();
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver       # To Start Local Server
 ```
 
 - **Task**

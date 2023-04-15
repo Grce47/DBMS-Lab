@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="{% static 'main.css' %}" />
+    <title>String Input</title>
+  </head>
+  <body>
+    <h1>Enter a string:</h1>
+    <form method="post">
+      {% csrf_token %}
+      <label for="query">Query:</label>
+      <input type="text" name="query" required />
+      <br /><br />
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

@@ -1,5 +1,0 @@
-HOST = 'localhost'
-DBNAME = 'gr47'
-USER = 'gr47'
-PASSWORD = '123'
-PORT = '5432'

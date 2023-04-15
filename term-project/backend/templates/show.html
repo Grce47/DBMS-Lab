@@ -1,0 +1,17 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>User Output</title>
+    <link rel="stylesheet" href="{% static 'main.css' %}" />
+  </head>
+  <body>
+    <h1>You entered:</h1>
+    <p>{{ query }}</p>
+    <p>{{ success }}</p>
+    <p>{{ max_exec_time }}</p>
+    <!-- add more info.. see terminal output..things which are recieved -->
+    <a href="{% url 'query' %}">Back to input</a>
+  </body>
+</html>
