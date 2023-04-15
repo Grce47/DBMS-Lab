@@ -26,6 +26,7 @@ pip install -r requirements.txt   # All neccessary library will be downloaded
 - **Run Application**
 
 ```bash
+cd backend
 python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver       # To Start Local Server
