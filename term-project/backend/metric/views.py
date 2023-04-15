@@ -28,6 +28,7 @@ def get_query(request):
             if query[-1] == ';':
                 query = query[:-1]
 
+            # executive given query
             cur.execute(query)
 
             # Retrieve the statistics for the query from pg_stat_statements
@@ -35,14 +36,20 @@ def get_query(request):
                 "SELECT * FROM pg_stat_statements WHERE query = %s", (query,))
             stats = cur.fetchone()
 
-            # Print the statistics to the console
+            # Adding the statistics to context
             for i, column in enumerate(cur.description):
                 context[column.name] = stats[i]
+
         except:
             context['success'] = 0
+
         cur.close()
         conn.close()
+
+        # printing context for debugging in terminal
         print(context)
-        return render(request, 'show.html', context)
+        if context['success']:
+            return render(request, 'show.html', context)
+        return render(request, 'error.html', context)
     else:
         return render(request, 'home.html')
