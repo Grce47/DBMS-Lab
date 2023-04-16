@@ -40,6 +40,12 @@ def get_query(request):
             for i, column in enumerate(cur.description):
                 context[column.name] = stats[i]
 
+            query = "EXPLAIN "+query
+            cur.execute(query)
+            res = cur.fetchall()
+
+            context['explain'] = res
+
         except:
             context['success'] = 0
 
