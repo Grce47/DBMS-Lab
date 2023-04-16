@@ -2,8 +2,8 @@ from django.shortcuts import render
 import psycopg2
 
 HOST = 'localhost'
-DBNAME = 'umang'
-USER = 'umang'
+DBNAME = 'gr47'
+USER = 'gr47'
 PASSWORD = '123'
 PORT = '5432'
 

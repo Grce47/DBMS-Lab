@@ -300,6 +300,7 @@
       opacity: 1;
       transform: translateX(0);
     }
+    @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@700&display=swap');
   </style>
 
 </head>
@@ -307,13 +308,13 @@
 <body>
   <!-- partial:index.partial.html -->
   <div class="title-container">
-    <h1 class="title">Enter a string</h1>
+    <h1 class="title">Enter a query</h1>
   </div>
 
   <form method="post">
     {% csrf_token %}
     <fieldset class="field-container">
-      <input type="text" name="query" placeholder="Query..." class="field is-focus" />
+      <input type="text" name="query" placeholder="select * from actor;" class="field is-focus" style="font-family: 'Nanum Gothic Coding', monospace;"/>
       <div class="icons-container">
         <button type="submit" style="cursor: pointer;" class="icon-search"></button>
       </div>
